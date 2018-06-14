@@ -1,0 +1,20 @@
+{
+  "name": "location-commit",
+  "version": "0.0.1",
+  "dependencies": {
+    "geoip-lite": "^1.2.1",
+    "node-where": "^1.1.0",
+    "public-ip": "^2.4.0",
+    "shelljs": "^0.8.2",
+    "yargs": "^11.0.0"
+  },
+  "bin": {
+    "lcommit": "./bin/lcommit"
+  },
+  "author": "Yasar icli <hello@yasaricli.com>",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/yasaricli/lcommit.git"
+  },
+  "license": "MIT"
+}

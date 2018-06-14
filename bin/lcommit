@@ -1,0 +1,17 @@
+#!/usr/bin/env node
+
+var where = require('node-where');
+    argv = require('yargs').argv,
+    publicIp = require('public-ip'),
+    shell = require('shelljs');
+
+// lcommit --am "Hello there."
+if (argv.am) {
+  publicIp.v4().then(function(ip) {
+    where.is(ip, function(err, result) {
+      if (result) {
+        return shell.exec(`git commit -am "${result.get('region')}/${result.get('city')} - ${argv.am}"`);
+      }
+    });
+  });
+}
