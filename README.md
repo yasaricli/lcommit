@@ -9,12 +9,7 @@ $ npm install --g lcommit
 
 ## Usage
 
-```
-$ lcommit --help
-
-  Usage
-    $ lcommit
-
-  Options
-    --am git commit -am <-am>
+``` SH
+lcommit --am "hello there." 
+## region/city - hello there
 ```
