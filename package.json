@@ -1,5 +1,5 @@
 {
-  "name": "location-commit",
+  "name": "lcommit",
   "version": "0.0.1",
   "dependencies": {
     "geoip-lite": "^1.2.1",
