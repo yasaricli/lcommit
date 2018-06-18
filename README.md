@@ -8,7 +8,7 @@
 ## Install
 
 ```
-$ npm install --g lcommit
+$ npm install -g lcommit
 ```
 
 ## Usage
