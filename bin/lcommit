@@ -12,7 +12,7 @@ var geocoder = NodeGeocoder({
 
 function launchChrome(headless=false) {
   return chromeLauncher.launch({
-    port: 9222,
+    port: 3131,
     chromeFlags: [ ]
   });
 }
