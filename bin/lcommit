@@ -1,17 +1,69 @@
 #!/usr/bin/env node
+var argv = require('yargs').argv,
+    shell = require('shelljs'),
+    chromeLauncher = require('chrome-launcher'),
+    CDP = require('chrome-remote-interface'),
+    NodeGeocoder = require('node-geocoder');
 
-var where = require('node-where');
-    argv = require('yargs').argv,
-    publicIp = require('public-ip'),
-    shell = require('shelljs');
+// :XXX OPTİONS ?
+var geocoder = NodeGeocoder({
+  httpAdapter: 'http'
+});
 
-// lcommit --am "Hello there."
-if (argv.am) {
-  publicIp.v4().then(function(ip) {
-    where.is(ip, function(err, result) {
-      if (result) {
-        return shell.exec(`git commit -am "${result.get('region')}/${result.get('city')} - ${argv.am}"`);
-      }
-    });
+function launchChrome(headless=false) {
+  return chromeLauncher.launch({
+    port: 9222,
+    chromeFlags: [ ]
   });
 }
+
+return (async function() {
+  const chrome = await launchChrome();
+  const protocol = await CDP({port: chrome.port});
+
+  const { Page, Runtime } = protocol;
+
+  await Promise.all([
+    Page.enable(), Runtime.enable()
+  ]);
+
+  const url = "https://www.google.com/";
+
+  Page.navigate({ url: url });
+
+  // Wait for window.onload before doing stuff.
+  Page.loadEventFired(async () => {
+    const requestRuntime = await Runtime.evaluate({
+      returnByValue: true,
+      awaitPromise: true,
+      expression: `
+        new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(({ coords }) => {
+            resolve({
+              status: true,
+              latitude: coords.latitude,
+              longitude: coords.longitude
+            });
+          }, () => {
+            reject({
+              status: false
+            })
+          });
+        })
+      `
+    });
+
+    // resullt request runtime.
+    const { result: { value } } = requestRuntime;
+
+    if (value.status) {
+      geocoder.reverse({ lat: value.latitude, lon: value.longitude }, function(err, results) {
+        const [ geo ] = results;
+
+        return shell.exec(`git commit -am "${geo.formattedAddress} - ${argv.am}"`);
+      });
+    }
+
+    return chrome.kill();
+  });
+})();
