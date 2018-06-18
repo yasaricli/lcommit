@@ -60,7 +60,7 @@ return (async function() {
       geocoder.reverse({ lat: value.latitude, lon: value.longitude }, function(err, results) {
         const [ geo ] = results;
 
-        return shell.exec(`git commit -am "${geo.formattedAddress} - ${argv.am}"`);
+        return shell.exec(`git commit -am "${argv.am} - ${geo.formattedAddress}"`);
       });
     }
 
