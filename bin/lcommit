@@ -3,11 +3,36 @@ var argv = require('yargs').argv,
     shell = require('shelljs'),
     chromeLauncher = require('chrome-launcher'),
     CDP = require('chrome-remote-interface'),
-    NodeGeocoder = require('node-geocoder');
+    NodeGeocoder = require('node-geocoder'),
+    { Signale } = require('signale');
+
+const { LCOMMIT_GEO_API_KEY = '' } = process.env;
+
+const customSignale = new Signale({
+  disabled: false,
+  interactive: false,
+  stream: process.stdout,
+  scope: 'lcommit',
+  types: {
+    geocoderError: {
+      badge: '**',
+      color: 'red',
+      label: 'geocoder error'
+    },
+
+    locationAllowError: {
+      badge: '**',
+      color: 'red',
+      label: 'Know your location'
+    }
+  }
+});
 
 // :XXX OPTİONS ?
 var geocoder = NodeGeocoder({
-  httpAdapter: 'http'
+  provider: 'google',
+  httpAdapter: 'https',
+  apiKey: LCOMMIT_GEO_API_KEY // Status is OVER_QUERY_LIMIT. You have exceeded your daily request quota for this API.
 });
 
 function launchChrome(headless=false) {
@@ -57,12 +82,25 @@ return (async function() {
     const { result: { value } } = requestRuntime;
 
     if (value.status) {
-      geocoder.reverse({ lat: value.latitude, lon: value.longitude }, function(err, results) {
+      geocoder.reverse({ lat: value.latitude, lon: value.longitude }, (err, results) => {
+        if (err) {
+          return customSignale.geocoderError(err);
+        }
+
+        // geo results.
         const [ geo ] = results;
 
+
+        // git commit address.
         return shell.exec(`git commit -am "${argv.am} - ${geo.formattedAddress}"`);
       });
+
+      return chrome.kill();
     }
+
+
+    // error show.
+    customSignale.locationAllowError('Please Click allow / share Location if you are prompted like above.');
 
     return chrome.kill();
   });
