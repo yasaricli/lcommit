@@ -1,6 +1,6 @@
 {
   "name": "lcommit",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "dependencies": {
     "chrome-launcher": "^0.10.2",
     "chrome-remote-interface": "^0.25.6",
