@@ -14,6 +14,6 @@ $ npm install -g lcommit
 ## Usage
 
 ``` SH
-lcommit --am "hello there." 
-## region/city - hello there
+lcommit --am "Bump 0.0.5" 
 ```
+<img width="500" src="result.png" alt="result">
