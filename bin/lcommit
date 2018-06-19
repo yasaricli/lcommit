@@ -4,6 +4,7 @@ var argv = require('yargs').argv,
     chromeLauncher = require('chrome-launcher'),
     CDP = require('chrome-remote-interface'),
     NodeGeocoder = require('node-geocoder'),
+    ora = require('ora'),
     { Signale } = require('signale');
 
 const { LCOMMIT_GEO_API_KEY = '' } = process.env;
@@ -56,6 +57,9 @@ function launchChrome(headless=false) {
 
     const { Page, Runtime } = protocol;
 
+    // spinner.
+    const spinner = ora('loading...').start();
+
     await Promise.all([
       Page.enable(), Runtime.enable()
     ]);
@@ -87,6 +91,8 @@ function launchChrome(headless=false) {
 
       if (value.status) {
         geocoder.reverse({ lat: value.latitude, lon: value.longitude }, (err, results) => {
+          spinner.stop();
+
           if (err) {
             return customSignale.geocoderError(err);
           }
@@ -102,6 +108,8 @@ function launchChrome(headless=false) {
         return chrome.kill();
       }
 
+      // stop spinner.
+      spinner.stop();
 
       // error show.
       customSignale.locationAllowError('Please Click allow / share Location if you are prompted like above.');

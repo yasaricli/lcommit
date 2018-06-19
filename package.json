@@ -6,6 +6,7 @@
     "chrome-remote-interface": "^0.25.6",
     "geoip-lite": "^1.2.1",
     "node-geocoder": "^3.22.0",
+    "ora": "^2.1.0",
     "shelljs": "^0.8.2",
     "signale": "^1.2.1",
     "yargs": "^11.0.0"
