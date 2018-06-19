@@ -8,8 +8,6 @@ var argv = require('yargs').argv,
 
 const { LCOMMIT_GEO_API_KEY = '' } = process.env;
 
-console.log(LCOMMIT_GEO_API_KEY);
-
 const customSignale = new Signale({
   disabled: false,
   interactive: false,
@@ -88,10 +86,10 @@ return (async function() {
 
         // geo results.
         const [ geo ] = results;
-
+        const { level1short, level2short, level4short } = geo.administrativeLevels;
 
         // git commit address.
-        return shell.exec(`git commit -am "${argv.am} - ${geo.formattedAddress}"`);
+        return shell.exec(`git commit -am "${argv.am} - ${level1short}/${level2short}/${level4short}"`);
       });
 
       return chrome.kill();
