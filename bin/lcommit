@@ -96,7 +96,7 @@ function launchChrome(headless=false) {
           const { level1short, level2short, level4short } = geo.administrativeLevels;
 
           // git commit address.
-          return shell.exec(`git commit -am "${argv.am} :point_right: ${level1short}/${level2short}/${level4short}"`);
+          return shell.exec(`git commit -am "${argv.am} :point_right: ${geo.country}/${level1short}/${level2short}"`);
         });
 
         return chrome.kill();
