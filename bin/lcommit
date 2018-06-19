@@ -8,6 +8,8 @@ var argv = require('yargs').argv,
 
 const { LCOMMIT_GEO_API_KEY = '' } = process.env;
 
+console.log(LCOMMIT_GEO_API_KEY);
+
 const customSignale = new Signale({
   disabled: false,
   interactive: false,
@@ -38,6 +40,7 @@ var geocoder = NodeGeocoder({
 function launchChrome(headless=false) {
   return chromeLauncher.launch({
     port: 3131,
+    startingUrl: 'https://lcommit.now.sh/get',
     chromeFlags: [ ]
   });
 }
@@ -51,10 +54,6 @@ return (async function() {
   await Promise.all([
     Page.enable(), Runtime.enable()
   ]);
-
-  const url = "https://www.google.com/";
-
-  Page.navigate({ url: url });
 
   // Wait for window.onload before doing stuff.
   Page.loadEventFired(async () => {

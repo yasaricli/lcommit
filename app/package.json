@@ -1,0 +1,25 @@
+{
+  "name": "lcommit",
+  "version": "0.0.1",
+  "author": "Yasar ICLI <hello@yasaricli.com> (http://www.yasaricli.com)",
+  "scripts": {
+    "dev": "next",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@zeit/next-less": "^0.3.0",
+    "less": "^3.0.4",
+    "next": "^6.0.3",
+    "next-images": "^0.10.2",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1",
+    "react-highlight": "^0.12.0"
+  },
+
+  "now": {
+    "alias": [
+      "lcommit"
+    ]
+  }
+}
