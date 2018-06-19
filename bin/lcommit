@@ -24,6 +24,12 @@ const customSignale = new Signale({
       badge: '**',
       color: 'red',
       label: 'Know your location'
+    },
+
+    argumentRequiredError: {
+      badge: '**',
+      color: 'red',
+      label: 'Argument required'
     }
   }
 });
@@ -43,62 +49,66 @@ function launchChrome(headless=false) {
   });
 }
 
-return (async function() {
-  const chrome = await launchChrome();
-  const protocol = await CDP({port: chrome.port});
+(async function() {
+  if (argv.am) {
+    const chrome = await launchChrome();
+    const protocol = await CDP({port: chrome.port});
 
-  const { Page, Runtime } = protocol;
+    const { Page, Runtime } = protocol;
 
-  await Promise.all([
-    Page.enable(), Runtime.enable()
-  ]);
+    await Promise.all([
+      Page.enable(), Runtime.enable()
+    ]);
 
-  // Wait for window.onload before doing stuff.
-  Page.loadEventFired(async () => {
-    const requestRuntime = await Runtime.evaluate({
-      returnByValue: true,
-      awaitPromise: true,
-      expression: `
-        new Promise((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(({ coords }) => {
-            resolve({
-              status: true,
-              latitude: coords.latitude,
-              longitude: coords.longitude
+    // Wait for window.onload before doing stuff.
+    return Page.loadEventFired(async () => {
+      const requestRuntime = await Runtime.evaluate({
+        returnByValue: true,
+        awaitPromise: true,
+        expression: `
+          new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(({ coords }) => {
+              resolve({
+                status: true,
+                latitude: coords.latitude,
+                longitude: coords.longitude
+              });
+            }, () => {
+              reject({
+                status: false
+              })
             });
-          }, () => {
-            reject({
-              status: false
-            })
-          });
-        })
-      `
-    });
-
-    // resullt request runtime.
-    const { result: { value } } = requestRuntime;
-
-    if (value.status) {
-      geocoder.reverse({ lat: value.latitude, lon: value.longitude }, (err, results) => {
-        if (err) {
-          return customSignale.geocoderError(err);
-        }
-
-        // geo results.
-        const [ geo ] = results;
-        const { level1short, level2short, level4short } = geo.administrativeLevels;
-
-        // git commit address.
-        return shell.exec(`git commit -am "${argv.am} - ${level1short}/${level2short}/${level4short}"`);
+          })
+        `
       });
 
+      // resullt request runtime.
+      const { result: { value } } = requestRuntime;
+
+      if (value.status) {
+        geocoder.reverse({ lat: value.latitude, lon: value.longitude }, (err, results) => {
+          if (err) {
+            return customSignale.geocoderError(err);
+          }
+
+          // geo results.
+          const [ geo ] = results;
+          const { level1short, level2short, level4short } = geo.administrativeLevels;
+
+          // git commit address.
+          return shell.exec(`git commit -am "${argv.am} :point_right: ${level1short}/${level2short}/${level4short}"`);
+        });
+
+        return chrome.kill();
+      }
+
+
+      // error show.
+      customSignale.locationAllowError('Please Click allow / share Location if you are prompted like above.');
+
       return chrome.kill();
-    }
+    });
+  }
 
-
-    // error show.
-    customSignale.locationAllowError('Please Click allow / share Location if you are prompted like above.');
-
-    return chrome.kill();
-  });
+  return customSignale.argumentRequiredError('--am arg is required.');
 })();
